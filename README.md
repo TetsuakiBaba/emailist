@@ -16,3 +16,5 @@ open http://localhost:8000/init_db.php
 // windows OS
 start "" "http://localhost:8000/init_db.php"
 ```
+<!-- teaser.gifを挿入 -->
+![teaser](teaser.gif)
