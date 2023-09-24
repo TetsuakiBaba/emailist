@@ -11,8 +11,8 @@ git clone https://github.com/TetsuakiBaba/emailist.git
 php -S localhost:8000
 
 // macOS
-open http://localhost:8000/dashboard
+open http://localhost:8000/init_db.php
 
 // windows OS
-start "" "http://localhost:8000/dashboard"
+start "" "http://localhost:8000/init_db.php"
 ```
