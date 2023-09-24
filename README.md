@@ -1,6 +1,7 @@
 # emailist
 A system that makes mailing list management as simple as possible, running on php and sqlite.
 
+![screenshot](./screenshot.png)
 ## Dependencies
 * php
 * sqlite
