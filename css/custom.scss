@@ -1,0 +1,37 @@
+$white: #ffffff;
+
+$theme-colors: (
+    "light":      #cbf7fa,
+    "dark":       #020a0a,
+    "primary":    #1d365e,
+    "secondary":  #5b76bd,
+    "info":       #c69c52,
+    "success":    #2ca162,
+    "warning":    #e2ca2c,
+    "danger":     #dd1010,
+);
+
+//リンクの文字色
+$link-color:    #1d365e;
+
+//bodyの背景、文字色
+$body-bg:       #fff;
+$body-color:    #212529;
+
+$accordion-button-focus-bg: #dd1010;
+$accordion-button-active-bg: #dd1010;
+
+// アコーディオンが開いたときのヘッダー文字色のカスタマイズ
+.custom-accordion .accordion-button:not(.collapsed) {
+    color: #ffffff;  // ここに希望の文字色を設定
+  
+    // フォーカスやアクティブ状態での文字色も設定可能
+    &:focus,
+    &:active {
+      color: darken(#ffffff, 0%);  // darken 関数で色を暗くしています
+    }
+  }
+
+
+@import "../node_modules/bootstrap/scss/bootstrap";
+
