@@ -1,0 +1,4 @@
+<Files "emailist.db">
+    Order allow,deny
+    Deny from all
+</Files>
