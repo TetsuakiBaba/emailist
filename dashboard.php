@@ -44,7 +44,7 @@ if (!isset($_SESSION['authenticated'])) {
     <body>
         <div class="container mt-5">
 
-            <h1>Emailist Dashboard</h1>
+            <h1 class="display-1">Emailist Dashboard</h1>
             <form class="row g-3" method="post" action="">
 
                 <div class="col-auto">
@@ -145,7 +145,7 @@ if (!isset($_SESSION['authenticated'])) {
         </nav>
 
         <div class="row">
-            <h1 class="mt-4">Dashboard</h1>
+            <h1 class="display-1 mt-4">Dashboard</h1>
             <div class="col-md-6">
 
 
@@ -233,118 +233,145 @@ if (!isset($_SESSION['authenticated'])) {
                 <div class="card mt-3">
                     <div class="card-body">
                         <h5 class="card-title">Controls</h5>
-                        <!-- Copy to Clipboard Button -->
-                        <button id="copyButton" class="btn btn-primary mb-2">
-                            <i class="bi bi-clipboard"></i> Copy Email Addresses to Clipboard</button>
-                        <script>
-                            document.addEventListener('DOMContentLoaded', () => {
-                                const copyButton = document.getElementById('copyButton');
 
-                                copyButton.addEventListener('click', async () => {
-                                    // Fetch email addresses from the database (PHP)
-                                    <?php
-                                    $db = new SQLite3('emailist.db');
-                                    $result = $db->query('SELECT * FROM email_addresses');
-                                    $emailArray = [];
+                        <div class="card mt-2">
+                            <div class="card-body">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <!-- Copy to Clipboard Button -->
+                                    <button id="copyButton" class="btn btn-primary mb-2">
+                                        <i class="bi bi-clipboard"></i> Copy Email Addresses to Clipboard
+                                    </button>
+                                </div>
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', () => {
+                                        const copyButton = document.getElementById('copyButton');
 
-                                    while ($row = $result->fetchArray()) {
-                                        $emailArray[] = $row['email'];
-                                    }
-                                    $emailList = implode(',', $emailArray);
-                                    ?>
+                                        copyButton.addEventListener('click', async () => {
+                                            // Fetch email addresses from the database (PHP)
+                                            <?php
+                                            $db = new SQLite3('emailist.db');
+                                            $result = $db->query('SELECT * FROM email_addresses');
+                                            $emailArray = [];
 
-                                    // Copy email addresses to clipboard
-                                    const emailList = "<?php echo $emailList; ?>";
-                                    await navigator.clipboard.writeText(emailList);
+                                            while ($row = $result->fetchArray()) {
+                                                $emailArray[] = $row['email'];
+                                            }
+                                            $emailList = implode(',', $emailArray);
+                                            ?>
 
-                                    alert('Email addresses copied to clipboard.');
-                                });
-                            });
-                        </script>
+                                            // Copy email addresses to clipboard
+                                            const emailList = "<?php echo $emailList; ?>";
+                                            await navigator.clipboard.writeText(emailList);
+
+                                            alert('Email addresses copied to clipboard.');
+                                        });
+                                    });
+                                </script>
+                                <p class="mb-1 small">
+                                    This is useful, for example, when you want to send a simultaneous e-mail with BCC, etc. in your own e-mail client. Press the Copy button and paste it into the BCC field of your mail client.
+                                </p>
+
+                            </div>
+                        </div>
+
 
                         <!-- download csv  -->
-                        <!-- ... existing HTML ... -->
-                        <button id="downloadCsv" class="btn btn-primary mb-2"><i class="bi bi-filetype-csv"></i> Download CSV</button>
-                        <!-- ... existing HTML ... -->
-                        <script>
-                            document.addEventListener('DOMContentLoaded', () => {
-                                const downloadCsvButton = document.getElementById('downloadCsv');
+                        <div class="card mt-2">
+                            <div class="card-body">
+                                <!-- ... existing HTML ... -->
+                                <button id="downloadCsv" class="btn btn-primary mb-2"><i class="bi bi-filetype-csv"></i> Download CSV</button>
+                                <!-- ... existing HTML ... -->
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', () => {
+                                        const downloadCsvButton = document.getElementById('downloadCsv');
 
-                                downloadCsvButton.addEventListener('click', () => {
-                                    const table = document.querySelector('.table');
-                                    let csv = [];
-                                    for (let row of table.rows) {
-                                        let rowData = [];
-                                        for (let cell of row.cells) {
-                                            rowData.push(cell.textContent);
-                                        }
-                                        csv.push(rowData.join(','));
-                                    }
-                                    const csvString = csv.join('\n');
-                                    const blob = new Blob([csvString], {
-                                        type: 'text/csv;charset=utf-8;'
-                                    });
-                                    const url = URL.createObjectURL(blob);
-                                    const a = document.createElement('a');
-                                    a.href = url;
-                                    a.download = 'email_list.csv';
-                                    document.body.appendChild(a);
-                                    a.click();
-                                    document.body.removeChild(a);
-                                });
-                            });
-                        </script>
+                                        downloadCsvButton.addEventListener('click', () => {
+                                            const table = document.querySelector('.table');
+                                            let csv = [];
+                                            for (let row of table.rows) {
+                                                if (row.rowIndex === 0) continue; // skip header row (index 0)
 
-                        <!-- ... CSV Upload ... -->
-                        <form id="csvUploadForm" class="mb-2" enctype="multipart/form-data">
-                            <div class="input-group">
-                                <input type="file" id="csvFile" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Upload" name="csvFile" accept=".csv" required>
-                                <button class="btn btn-primary" type="submit" id="inputGroupFileAddon04">Upload csv file</button>
-                            </div>
+                                                // 1列目(email列）だけ取得
+                                                let cellData = row.cells[1].textContent;
+                                                csv.push(cellData);
+                                            }
 
-                            <!-- <input type="file" id="csvFile" name="csvFile" accept=".csv" required>
-                    <button type="submit" class="btn btn-primary mt-3">Upload</button> -->
-                        </form>
-                        <!-- ... existing HTML ... -->
-                        <script>
-                            document.addEventListener('DOMContentLoaded', () => {
-                                // ... existing JavaScript ...
-
-                                // CSV Upload
-                                const csvUploadForm = document.getElementById('csvUploadForm');
-
-                                csvUploadForm.addEventListener('submit', async (e) => {
-                                    e.preventDefault();
-                                    const csvFile = document.getElementById('csvFile').files[0];
-                                    const reader = new FileReader();
-
-                                    reader.onload = async function(event) {
-                                        const csvData = event.target.result;
-                                        const emails = csvData.split('\n');
-
-                                        // Here you can send `emails` to the server for saving them into the database.
-                                        // For example, you could make an AJAX call to a PHP script that handles the database insertion.
-                                        const formData = new FormData();
-                                        formData.append('emails', JSON.stringify(emails));
-
-                                        const response = await fetch('upload_emails.php', {
-                                            method: 'POST',
-                                            body: formData
+                                            const csvString = csv.join('\n');
+                                            const blob = new Blob([csvString], {
+                                                type: 'text/csv;charset=utf-8;'
+                                            });
+                                            const url = URL.createObjectURL(blob);
+                                            const a = document.createElement('a');
+                                            a.href = url;
+                                            a.download = 'email_list.csv';
+                                            document.body.appendChild(a);
+                                            a.click();
+                                            document.body.removeChild(a);
                                         });
+                                    });
+                                </script>
+                                <p class="mb-1 small">
+                                    A list of registered email addresses can be downloaded in csv format. Please use it for system backup, etc.
+                                </p>
+                            </div>
+                        </div>
 
-                                        if (response.ok) {
-                                            alert('Emails uploaded successfully.');
-                                            location.reload(); // ここでページをリロード
-                                        } else {
-                                            alert('Failed to upload emails.');
-                                        }
-                                    };
+                        <div class="card mt-2">
+                            <div class="card-body">
+                                <!-- ... CSV Upload ... -->
+                                <form id="csvUploadForm" class="mb-2" enctype="multipart/form-data">
+                                    <div class="input-group">
+                                        <input type="file" id="csvFile" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Upload" name="csvFile" accept=".csv" required>
+                                        <button class="btn btn-primary" type="submit" id="inputGroupFileAddon04">Upload csv file</button>
+                                    </div>
 
-                                    reader.readAsText(csvFile);
-                                });
-                            });
-                        </script>
+                                    <!-- <input type="file" id="csvFile" name="csvFile" accept=".csv" required>
+                    <button type="submit" class="btn btn-primary mt-3">Upload</button> -->
+                                </form>
+                                <!-- ... existing HTML ... -->
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', () => {
+                                        // ... existing JavaScript ...
 
+                                        // CSV Upload
+                                        const csvUploadForm = document.getElementById('csvUploadForm');
+
+                                        csvUploadForm.addEventListener('submit', async (e) => {
+                                            e.preventDefault();
+                                            const csvFile = document.getElementById('csvFile').files[0];
+                                            const reader = new FileReader();
+
+                                            reader.onload = async function(event) {
+                                                const csvData = event.target.result;
+                                                const emails = csvData.split('\n');
+
+                                                // Here you can send `emails` to the server for saving them into the database.
+                                                // For example, you could make an AJAX call to a PHP script that handles the database insertion.
+                                                const formData = new FormData();
+                                                formData.append('emails', JSON.stringify(emails));
+
+                                                const response = await fetch('upload_emails.php', {
+                                                    method: 'POST',
+                                                    body: formData
+                                                });
+
+                                                if (response.ok) {
+                                                    alert('Emails uploaded successfully.');
+                                                    location.reload(); // ここでページをリロード
+                                                } else {
+                                                    alert('Failed to upload emails.');
+                                                }
+                                            };
+
+                                            reader.readAsText(csvFile);
+                                        });
+                                    });
+                                </script>
+                                <p class="mb-1 small">
+                                    This is used when you want to register all email addresses at once, and save each row of email addresses.
+                                </p>
+                            </div>
+                        </div>
                         <hr>
 
 
@@ -428,7 +455,7 @@ if (!isset($_SESSION['authenticated'])) {
                     <div class="card-body">
 
                         <h5 class="card-title">Page links </h5>
-                        <small><i class="bi bi-lock"></i>: admin auth</small><br> <small><i class="bi bi-unlock"></i>: open access</small>
+                        <small class="me-2"><i class="bi bi-lock me"></i>: admin auth</small> <small><i class="bi bi-unlock"></i>: open access</small>
                         <div class="list-group">
                             <a href="init_db.php" target="_blank" class="list-group-item list-group-item-action" aria-current="true">
                                 <div class="d-flex w-100 justify-content-between">
@@ -439,8 +466,7 @@ if (!isset($_SESSION['authenticated'])) {
                                     Once the administrator and database have been created, nothing will happen when the database is accessed again unless it is deleted.
                                 </p>
                             </a>
-                        </div>
-                        <div class="list-group">
+
                             <a href="showall.php" target="_blank" class="list-group-item list-group-item-action" aria-current="true">
                                 <div class="d-flex w-100 justify-content-between">
                                     <h5 class="mb-1">showall.php</h5>
@@ -450,21 +476,17 @@ if (!isset($_SESSION['authenticated'])) {
                                     Displays all information in the sqlite database
                                 </p>
                             </a>
-                        </div>
 
-                        <div class="list-group">
                             <a href="send.php" target="_blank" class="list-group-item list-group-item-action" aria-current="true">
                                 <div class="d-flex w-100 justify-content-between">
                                     <h5 class="mb-1">send.php</h5>
                                     <small><i class="bi bi-lock"></i></small>
                                 </div>
                                 <p class="mb-1 small">
-                                    This page is for administrators to send emails to all registered email addresses.
+                                    This page is for administrators to send emails to all registered email addresses.Depending on the server settings, there is a high possibility that e-mails sent with this function will be classified as junk mail. Please be careful when using this function.
                                 </p>
                             </a>
-                        </div>
 
-                        <div class="list-group">
                             <a href="subscribe.php" target="_blank" class="list-group-item list-group-item-action" aria-current="true">
                                 <div class="d-flex w-100 justify-content-between">
                                     <h5 class="mb-1">subscribe.php</h5>
@@ -474,8 +496,6 @@ if (!isset($_SESSION['authenticated'])) {
                                     This page is for general users who want to register their own e-mail address
                                 </p>
                             </a>
-                        </div>
-                        <div class="list-group">
                             <a href="unsubscribe.php" target="_blank" class="list-group-item list-group-item-action" aria-current="true">
                                 <div class="d-flex w-100 justify-content-between">
                                     <h5 class="mb-1">unsubscribe.php</h5>
