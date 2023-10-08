@@ -27,7 +27,7 @@ $defaultEmail = isset($_GET['email']) ? htmlspecialchars($_GET['email']) : '';
         <?php
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['removeEmail'])) {
             $removeEmail = $_POST['removeEmail'];
-            $db = new SQLite3('emailist.db');
+            $db = new SQLite3($db_path);
 
             // Check if email exists
             $stmt = $db->prepare('SELECT * FROM email_addresses WHERE email = :email');

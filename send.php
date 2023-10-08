@@ -9,7 +9,7 @@ if (!isset($_SESSION['authenticated'])) {
 }
 
 // メールアドレスの数を取得
-$db = new SQLite3('emailist.db');
+$db = new SQLite3($db_path);
 $result = $db->query('SELECT COUNT(*) as count FROM email_addresses');
 $row = $result->fetchArray();
 $emailCount = $row['count'];

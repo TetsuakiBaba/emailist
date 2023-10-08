@@ -8,10 +8,11 @@
 </head>
 
 <?php
+include 'settings.php';
 // Start a session
 session_start();
 
-$db_file = 'emailist.db';
+$db_file = $db_path;
 $table_exists = false;
 $db_exists = file_exists($db_file);
 

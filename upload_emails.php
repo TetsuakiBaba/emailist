@@ -1,7 +1,8 @@
 <?php
+include 'settings.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['emails'])) {
   $emails = json_decode($_POST['emails'], true);
-  $db = new SQLite3('emailist.db');
+  $db = new SQLite3($db_path);
 
   foreach ($emails as $email) {
     $email = trim($email); // Remove any extra spaces or newlines

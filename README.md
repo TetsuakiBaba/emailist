@@ -48,4 +48,4 @@ Basic operations can be performed from dashboard.php.
 * unsubscribe.php (unsubscribe from email list)
 
 ## Deployment
-* You can deploy this system on a web server that supports php and sqlite. In that case, please place emailist.db in a location that is not accessible to general users. emaillist.db is a somewhat complicated procedure if you place it outside of the service root, as you will need to change all the paths in the php code to load emailist.db. We recommend using .htaccess to restrict access at this time.
+* You can deploy this system on a web server that supports php and sqlite. In that case, please place emailist.db in a location that is not accessible to general users. The location of emailist.db can be specified at once from settings.php.

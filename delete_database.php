@@ -1,11 +1,12 @@
 <?php
+include 'settings.php';
 session_start();
 
 // Check if the user is authenticated in dashboard.php
 if (isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true) {
     header('Content-Type: application/json');
 
-    $db_file = 'emailist.db';
+    $db_file = $db_path;
 
     if (file_exists($db_file)) {
         if (unlink($db_file)) {
@@ -20,5 +21,3 @@ if (isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true) {
     http_response_code(403);
     echo json_encode(['status' => 'error', 'message' => 'Unauthorized access']);
 }
-
-?>

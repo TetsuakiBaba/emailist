@@ -1,4 +1,5 @@
 <?php
+include 'settings.php';
 // セッションを開始
 session_start();
 
@@ -9,7 +10,7 @@ if (!isset($_SESSION['authenticated'])) {
 }
 
 // Connect to the SQLite database
-$db = new SQLite3('emailist.db');
+$db = new SQLite3($db_path);
 
 // Get the list of all tables in the database
 $tablesQuery = $db->query("SELECT name FROM sqlite_master WHERE type='table';");

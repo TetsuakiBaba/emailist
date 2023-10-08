@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['resetPassword'])) {
     $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
 
     // SQLite3データベースに接続
-    $db = new SQLite3('emailist.db');
+    $db = new SQLite3($db_path);
 
     // パスワードを更新
     $stmt = $db->prepare('UPDATE dashboard_passwords SET password = :password WHERE id = 1');

@@ -27,7 +27,7 @@ include 'settings.php';
         // subscribe.php
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $email = $_POST['email'];
-            $db = new SQLite3('emailist.db');
+            $db = new SQLite3($db_path);
 
             // Check if email already exists
             $stmt = $db->prepare('SELECT * FROM email_addresses WHERE email = :email');

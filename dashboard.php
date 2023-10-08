@@ -16,7 +16,7 @@ if (isset($_POST['password'])) {
     $inputPassword = $_POST['password'];
 
     // Fetch the hashed password from the database
-    $db = new SQLite3('emailist.db');
+    $db = new SQLite3($db_path);
     $result = $db->query("SELECT password FROM dashboard_passwords WHERE id = 1");
     $row = $result->fetchArray();
     $hashedPassword = $row['password'];
@@ -147,11 +147,9 @@ if (!isset($_SESSION['authenticated'])) {
         <div class="row">
             <h1 class="display-1 mt-4">Dashboard</h1>
             <div class="col-md-6">
-
-
                 <div class="card">
+                    <h5 class="card-header">Add email address to the list</h5>
                     <div class="card-body">
-                        <h5 class="card-title">Add email address to the list</h5>
 
                         <!-- Add Email Form -->
                         <form method="post" action="">
@@ -222,7 +220,7 @@ if (!isset($_SESSION['authenticated'])) {
                 $tableCheck = $db->querySingle("SELECT name FROM sqlite_master WHERE type='table' AND name='email_addresses';");
 
                 if (!$tableCheck) {
-                    echo "<div class='alert alert-danger mt-3'>Error: The table for email addresses does not exist.</div>";
+                    echo "<div class='alert alert-danger mt-3'>Error: The table for email addresses does not exist. Please start at <a href='./init_db.php'>init_db.php</a> from scratch.</div>";
                     exit;
                 }
 
@@ -231,8 +229,8 @@ if (!isset($_SESSION['authenticated'])) {
 
 
                 <div class="card mt-3">
+                    <h5 class="card-header">Controls</h5>
                     <div class="card-body">
-                        <h5 class="card-title">Controls</h5>
 
                         <div class="card mt-2">
                             <div class="card-body">
@@ -322,7 +320,7 @@ if (!isset($_SESSION['authenticated'])) {
                                 <form id="csvUploadForm" class="mb-2" enctype="multipart/form-data">
                                     <div class="input-group">
                                         <input type="file" id="csvFile" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Upload" name="csvFile" accept=".csv" required>
-                                        <button class="btn btn-primary" type="submit" id="inputGroupFileAddon04">Upload csv file</button>
+                                        <button class="btn btn-primary" type="submit" id="inputGroupFileAddon04"> <i class="bi bi-upload"></i> Upload csv file</button>
                                     </div>
 
                                     <!-- <input type="file" id="csvFile" name="csvFile" accept=".csv" required>
@@ -452,9 +450,10 @@ if (!isset($_SESSION['authenticated'])) {
                 </div>
 
                 <div class="card mt-3">
+                    <h5 class="card-header">Page links </h5>
                     <div class="card-body">
 
-                        <h5 class="card-title">Page links </h5>
+
                         <small class="me-2"><i class="bi bi-lock me"></i>: admin auth</small> <small><i class="bi bi-unlock"></i>: open access</small>
                         <div class="list-group">
                             <a href="init_db.php" target="_blank" class="list-group-item list-group-item-action" aria-current="true">
@@ -513,8 +512,18 @@ if (!isset($_SESSION['authenticated'])) {
             <div class="col-md-6">
                 <!-- Email List -->
                 <div class="card">
+                    <h5 class="card-header">
+                        Email list
+                    </h5>
                     <div class="card-body">
-                        <h4 class="card-title">Email List</h4>
+                        <p class="text-start">
+                            <!-- Button trigger modal -->
+                            <button type="button" class="btn btn btn-outline-primary me-2" onclick="window.location.href = window.location.href;">
+                                <i class="bi bi-arrow-clockwise"></i> Reload
+                            </button>
+
+
+                        </p>
                         <table class="table">
                             <thead>
                                 <tr>
@@ -536,8 +545,10 @@ if (!isset($_SESSION['authenticated'])) {
                     </div>
                 </div>
             </div>
+
+            <hr class="mt-5">
             <footer class="mt-4 mb-4">
-                <p class="text-center text-muted">© 2023 <a class="fw-bold text-decoration-none" href="https://tetsuakibaba.jp">Tetsuaki BABA</a></p>
+                <p class="text-center text-muted">© 2023 <a class="fw-bold text-decoration-none" href="https://tetsuakibaba.jp">Tetsuaki BABA</a>, <a href="https://github.com/TetsuakiBaba/emailist" target="_blank"><i class="bi bi-github"></i></a></p>
             </footer>
 
         </div>

@@ -2,6 +2,8 @@
 // settings.php
 $service_name = "Your Service Name";
 
+$db_path = "./emailist.db";
+
 // email address to receive password reset link
 $admin_email = "admin@example.com";
 
