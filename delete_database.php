@@ -1,5 +1,5 @@
 <?php
-include 'settings.php';
+include 'config.php';
 session_start();
 
 // Check if the user is authenticated in dashboard.php

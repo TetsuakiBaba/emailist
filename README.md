@@ -8,18 +8,51 @@ A system that makes mailing list management as simple as possible, running on ph
 
 ## Getting Started
 
-### 1. Install and initialize database and admin acount on a local server
-```
+1. clone this repository
+```bash
 git clone https://github.com/TetsuakiBaba/emailist.git
 cd emailist
-php -S localhost:8000
-
-// macOS
-open http://localhost:8000/init_db.php
-
-// windows OS
-start "" "http://localhost:8000/init_db.php"
 ```
+
+2. Create config.php
+```bash
+touch config.php
+```
+
+3. Save config.php
+```php
+<?php
+$service_name = "Your Service Name";
+
+$db_path = "./emailist.db";
+
+// email address to receive password reset link
+$admin_email = "admin@example.com";
+
+// email address to be used as send.php
+$emailSender = "no-reply@example.com";
+
+// email subject and message for confirmation and unsubscription
+$confirmationSubject = "Subscription Confirmation";
+$confirmationMessage = "You have successfully subscribed to our mailing list.";
+
+// email subject and message for unsubscription confirmation
+$unsubscribeConfirmationSubject = "Unsubscription Confirmation";
+$unsubscribeConfirmationMessage = "You have successfully unsubscribed from our mailing list.";
+?>
+```
+
+4. Run the following command
+```bash
+php -S localhost:8000
+```
+
+5. open init_db.php in your browser
+```bash
+open http://localhost:8000/init_db.php
+```
+
+
 <!-- teaser.gifを挿入 -->
 ![teaser](images/teaser.gif)
 

@@ -1,5 +1,5 @@
 <?php
-include 'settings.php';
+include 'config.php';
 // セッションを開始
 session_start();
 
@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['resetPassword'])) {
     // ...
     if ($stmt->execute()) {
         // $admin_emailと$emailSenderはsettings.phpから取得すると仮定
-        require_once 'settings.php';
+        require_once 'config.php';
 
         // メールを送信
         $subject = "Your Password Has Been Reset";

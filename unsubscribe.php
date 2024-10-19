@@ -1,5 +1,5 @@
 <?php
-include 'settings.php';
+include 'config.php';
 $defaultEmail = isset($_GET['email']) ? htmlspecialchars($_GET['email']) : '';
 ?>
 <!DOCTYPE html>

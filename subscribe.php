@@ -1,6 +1,6 @@
 <?php
 // Include the settings file
-include 'settings.php';
+include 'config.php';
 ?>
 
 <!DOCTYPE html>

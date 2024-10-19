@@ -8,7 +8,7 @@
 </head>
 
 <?php
-include 'settings.php';
+include 'config.php';
 // Start a session
 session_start();
 

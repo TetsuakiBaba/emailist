@@ -1,5 +1,5 @@
 <?php
-include 'settings.php';
+include 'config.php';
 // セッションを開始
 session_start();
 
@@ -7,6 +7,16 @@ session_start();
 if (!isset($_SESSION['authenticated'])) {
     header('Location: dashboard.php');
 }
+// config.phpを読み込む
+require('./SMTPMailer/config.php');
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+// 必要なファイルを読み込む
+require('./SMTPMailer/PHPMailer/src/PHPMailer.php');
+require('./SMTPMailer/PHPMailer/src/Exception.php');
+require('./SMTPMailer/PHPMailer/src/SMTP.php');
 
 // メールアドレスの数を取得
 $db = new SQLite3($db_path);
@@ -71,6 +81,8 @@ $emailCount = $row['count'];
             $result = $db->query('SELECT * FROM email_addresses');
             $errors = [];
 
+            $mail = new PHPMailer(true);
+
             while ($row = $result->fetchArray()) {
                 $to = $row['email'];
                 $hostName = $_SERVER['HTTP_HOST'];
@@ -81,9 +93,54 @@ $emailCount = $row['count'];
 
                 $message = nl2br($messageBase) . "<br><br>To " . $unsubscribeLink;
 
-                if (!mb_send_mail($to, $subject, $message, $headers)) {
-                    $errors[] = $to;
+                // SMTP設定
+                $mail->isSMTP();
+                $mail->Host = $SMTP_SERVER;
+                $mail->SMTPAuth = true;
+                $mail->Username = $SMTP_USERNAME; // SMTPサーバーのユーザー名
+                $mail->Password = $SMTP_PASSWORD; // SMTPサーバーのパスワード
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // SSL
+                $mail->Port = $SMTP_PORT;
+
+                // 送信者情報
+                $mail->setFrom($SMTP_SENDER_ADDRESS, 'auto mailer');
+
+                // 日本語の文字エンコーディングを設定
+                $mail->CharSet = 'UTF-8';
+
+                // メールをHTML形式で送信
+                $mail->isHTML(true);  // HTML形式を有効にする
+                $mail->Subject = $subject;
+
+                // HTML形式の本文
+                $mail->Body = "
+    <html>
+    <body>
+        <h1>{$subject}</h1>
+        <p>{$message}</p>
+    </body>
+    </html>
+";
+
+                // HTMLが見れない環境用の代替テキスト
+                $mail->AltBody = strip_tags($message); // プレーンテキスト形式
+
+                // 受信者をクリア
+                $mail->clearAddresses(); // 既存のアドレスをすべてクリア
+
+                // 受信者を追加
+                $mail->addAddress($to);
+
+                // メール送信
+                if ($mail->send()) {
+                    echo 'success';
+                } else {
+                    echo 'fail to send: ' . $mail->ErrorInfo;
                 }
+
+                // if (!mb_send_mail($to, $subject, $message, $headers)) {
+                //     $errors[] = $to;
+                // }
             }
 
             if (empty($errors)) {

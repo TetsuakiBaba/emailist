@@ -1,5 +1,5 @@
 <?php
-include 'settings.php';
+include 'config.php';
 // セッションを開始
 session_start();
 
