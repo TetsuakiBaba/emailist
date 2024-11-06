@@ -20,9 +20,27 @@ touch config.php
 ```
 
 3. Save config.php
+
+Modify the following settings according to your environment.
 ```php
 <?php
+// config.php
 $service_name = "Your Service Name";
+$footer_text = "Your Service Name &copy; 2024";
+
+$readme_title = "emailist";
+$readme_text = <<<HTML
+<p>
+emailist is a system that makes mailing list management as simple as possible, running on php and sqlite.
+</p>
+<p>
+Administrators can add, delete, etc. email lists through dashboard.php. The administrator can also send emails simultaneously from the send.php page. General users can freely register their own email addresses via subscribe.php. They can also unsubscribe at any time from unsubscribe.php.
+</p>
+<p>
+Please refer to the <a href="https://github.com/TetsuakiBaba/emailist" target="_blank">README on the github</a> page for details on how to deploy this system.
+</p>
+HTML;
+
 
 $db_path = "./emailist.db";
 
@@ -39,6 +57,7 @@ $confirmationMessage = "You have successfully subscribed to our mailing list.";
 // email subject and message for unsubscription confirmation
 $unsubscribeConfirmationSubject = "Unsubscription Confirmation";
 $unsubscribeConfirmationMessage = "You have successfully unsubscribed from our mailing list.";
+
 ?>
 ```
 
@@ -56,9 +75,7 @@ open http://localhost:8000/init_db.php
 <!-- teaser.gifを挿入 -->
 ![teaser](images/teaser.gif)
 
-### 2. Customize settings.php according to your environment
-
-### 3. manage email list
+### 2. manage email list
 Basic operations can be performed from dashboard.php.
 * add email
   * This operation can also be performed by other users using subscribe.php.
@@ -73,10 +90,19 @@ Basic operations can be performed from dashboard.php.
 * delete database
   * This will delete the database and create a new one. This is useful when you want to delete all email addresses and start over.If you delete the database, be sure to run it again from init_db.php.
 
-### 4. send email
-* send.php (send email to all email addresses)
+### 3. send email
+* emailist uses SMTPMailer to send mails. Please follow the instructions in the following link to set up SMTPMailer.
 
-### 5. Subscribe and Unsubscribe from annoymus users
+  * SMTPMailer github repository: https://github.com/TetsuakiBaba/SMTPMailer
+
+#### Directory structure
+<pre>
+emailist/
+└─ SMTPMailer/
+   └─ PHPMailer/
+</pre>
+
+### 4. Subscribe and Unsubscribe from annoymus users
 * subscribe.php (subscribe to email list)
 * unsubscribe.php (unsubscribe from email list)
 

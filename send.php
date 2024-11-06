@@ -1,5 +1,6 @@
 <?php
 include 'config.php';
+// include 'SMTPMailer/config.php';
 // セッションを開始
 session_start();
 
@@ -60,6 +61,11 @@ $emailCount = $row['count'];
                         <h5 class="modal-title" id="previewModalLabel">Email Preview</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
+                    <div class="modal-body">
+                        <div class="alert alert-danger">
+                            <strong class="me-2">Important</strong>SMTP server may take a few seconds per one email, so it may take some time to send all addresses. Please do not close the browser until the process is complete.
+                        </div>
+                    </div>
                     <div class="modal-body" id="previewContent">
                     </div>
                     <div class="modal-footer">
@@ -72,9 +78,19 @@ $emailCount = $row['count'];
 
         <?php
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $current_timeout = ini_get("max_execution_time");
+            // echo "Current timeout setting is: " . $current_timeout . " seconds.";
+
+            // タイムアウト時間を無効にする
+            set_time_limit(0);
+
+            $current_timeout = ini_get("max_execution_time");
+            // echo "Current timeout setting is: " . $current_timeout . " seconds.";
+
+
             $subject = $_POST['subject'];
             $messageBase = $_POST['message'];
-            $headers = "From: $emailSender\r\n";
+            $headers = "From: $SMTP_SENDER_ADDRESS\r\n";
             $headers .= "Content-type: text/html; charset=UTF-8\r\n"; // HTMLメールのためのヘッダー
             $db = new SQLite3('emailist.db');
 
@@ -82,8 +98,9 @@ $emailCount = $row['count'];
             $errors = [];
 
             $mail = new PHPMailer(true);
-
+            $loop_count = 0;
             while ($row = $result->fetchArray()) {
+                $loop_count++;
                 $to = $row['email'];
                 $hostName = $_SERVER['HTTP_HOST'];
                 $requestUri = $_SERVER['REQUEST_URI'];
@@ -103,7 +120,7 @@ $emailCount = $row['count'];
                 $mail->Port = $SMTP_PORT;
 
                 // 送信者情報
-                $mail->setFrom($SMTP_SENDER_ADDRESS, 'auto mailer');
+                $mail->setFrom($SMTP_SENDER_ADDRESS, $service_name);
 
                 // 日本語の文字エンコーディングを設定
                 $mail->CharSet = 'UTF-8';
@@ -133,10 +150,12 @@ $emailCount = $row['count'];
 
                 // メール送信
                 if ($mail->send()) {
-                    echo 'success';
+                    // echo 'success';
                 } else {
                     echo 'fail to send: ' . $mail->ErrorInfo;
                 }
+
+
 
                 // if (!mb_send_mail($to, $subject, $message, $headers)) {
                 //     $errors[] = $to;
@@ -171,6 +190,22 @@ $emailCount = $row['count'];
             });
         </script>
 
+
+        <hr class="mt-5">
+        <footer class="mt-2 mb-4">
+            <div class="text-center small text-muted">
+                <?php echo $footer_text; ?>
+            </div>
+        </footer>
+        <!-- manifest.jsonをfetchで読み込み、Versionの値を取得 -->
+        <script>
+            fetch('./manifest.json')
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data.version);
+                    document.querySelector('footer').innerHTML += `<div class="text-center text-muted small">${data.name} v.${data.version}</div>`;
+                });
+        </script>
 
         <!-- Add bootstrap JS at the end -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>

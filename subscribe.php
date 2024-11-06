@@ -61,8 +61,24 @@ include 'config.php';
         ?>
 
 
-
+        <hr class="mt-5">
+        <footer class="mt-2 mb-4">
+            <div class="text-center small text-muted">
+                <?php echo $footer_text; ?>
+            </div>
+        </footer>
+        <!-- manifest.jsonをfetchで読み込み、Versionの値を取得 -->
+        <script>
+            fetch('./manifest.json')
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data.version);
+                    document.querySelector('footer').innerHTML += `<div class="text-center text-muted small">${data.name} v.${data.version}</div>`;
+                });
+        </script>
     </div>
+
+
 </body>
 
 </html>

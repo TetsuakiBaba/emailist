@@ -65,6 +65,6 @@ if (!$db_exists || !$table_exists) {
 <?php
 } else {
     // The database and table exist, redirect or do something else
-    echo "The database and table already exist.";
+    echo "The database and table already exist. Nothing is changed and done.";
 }
 ?>

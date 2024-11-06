@@ -1,0 +1,21 @@
+{
+    "name": "emailist",
+    "version": "1.0.0",
+    "description": "A project for super simple managing email lists",
+    "main": "dashboard.php",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/TetsuakiBaba/emailist"
+    },
+    "keywords": [
+        "email",
+        "list",
+        "management"
+    ],
+    "author": "Tetsuaki Baba",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/TetsuakiBaba/emailist/issues"
+    },
+    "homepage": "https://github.com/TetsuakiBaba"
+}

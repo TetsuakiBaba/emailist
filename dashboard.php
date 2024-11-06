@@ -39,6 +39,8 @@ if (!isset($_SESSION['authenticated'])) {
         <title>Dashboard: Login</title>
         <link href="./css/custom.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+        <!-- manifest.jsonの読み込み -->
+        <link rel="manifest" href="./manifest.json">
     </head>
 
     <body>
@@ -102,7 +104,7 @@ if (!isset($_SESSION['authenticated'])) {
 </head>
 
 <body>
-    <div class="container">
+    <div class="container-fluid">
 
         <nav class="navbar bg-body-transparent">
             <span class="fs-4 fw-bold">
@@ -119,19 +121,11 @@ if (!isset($_SESSION['authenticated'])) {
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h1 class="modal-title fs-5" id="exampleModalLabel">README</h1>
+                                <h1 class="modal-title fs-5" id="exampleModalLabel"><?php echo $readme_title; ?> </h1>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <p>
-                                    emailist is a system that makes mailing list management as simple as possible, running on php and sqlite.
-                                </p>
-                                <p>
-                                    Administrators can add, delete, etc. email lists through dashboard.php. The administrator can also send emails simultaneously from the send.php page. General users can freely register their own email addresses via subscribe.php. They can also unsubscribe at any time from unsubscribe.php.
-                                </p>
-                                <p>
-                                    Please refer to the <a href="https://github.com/TetsuakiBaba/emailist" target="_blank">README on the github</a> page for details on how to deploy this system.
-                                </p>
+                                <?php echo $readme_text; ?>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -145,7 +139,7 @@ if (!isset($_SESSION['authenticated'])) {
         </nav>
 
         <div class="row">
-            <h1 class="display-1 mt-4">Dashboard</h1>
+            <h1 class="mt-4">Dashboard</h1>
             <div class="col-md-6">
                 <div class="card">
                     <h5 class="card-header">Add email address to the list</h5>
@@ -547,9 +541,21 @@ if (!isset($_SESSION['authenticated'])) {
             </div>
 
             <hr class="mt-5">
-            <footer class="mt-4 mb-4">
-                <p class="text-center text-muted">© 2023 <a class="fw-bold text-decoration-none" href="https://tetsuakibaba.jp">Tetsuaki BABA</a>, <a href="https://github.com/TetsuakiBaba/emailist" target="_blank"><i class="bi bi-github"></i></a></p>
+            <footer class="mt-2 mb-4">
+                <div class="text-center small text-muted">
+                    <?php echo $footer_text; ?>
+                </div>
             </footer>
+            <!-- manifest.jsonをfetchで読み込み、Versionの値を取得 -->
+            <script>
+                fetch('./manifest.json')
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data.version);
+                        document.querySelector('footer').innerHTML += `<div class="text-center text-muted small">${data.name} v.${data.version}</div>`;
+                    });
+            </script>
+
 
         </div>
 
