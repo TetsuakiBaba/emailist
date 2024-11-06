@@ -63,7 +63,7 @@ $emailCount = $row['count'];
                     </div>
                     <div class="modal-body">
                         <div class="alert alert-danger">
-                            <strong class="me-2">Important</strong>SMTP server may take a few seconds per one email, so it may take some time to send all addresses. Please do not close the browser until the process is complete.
+                            <strong class="me-2">Important</strong>SMTP server may take a few seconds per one email, so it may take some time to send all addresses.
                         </div>
                     </div>
                     <div class="modal-body" id="previewContent">
@@ -78,11 +78,17 @@ $emailCount = $row['count'];
 
         <?php
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+            echo "<script>document.body.innerHTML = '<div class=\'alert alert-info\' role=\'alert\'>Sending to $emailCount adresses... <a href=\'log.html\' target=\'_blank\' onclick=\'window.close();\'>Check progress</a></div>';window.close();window.open('log.html');</script>";
+            // クライアントへの応答を終了する前にバッファをクリアして送信
+            ob_end_flush();
+            flush();
+            fastcgi_finish_request();  // クライアントへの応答を終了
+
             $current_timeout = ini_get("max_execution_time");
             // echo "Current timeout setting is: " . $current_timeout . " seconds.";
 
-            // タイムアウト時間を無効にする
-            set_time_limit(0);
+
 
             $current_timeout = ini_get("max_execution_time");
             // echo "Current timeout setting is: " . $current_timeout . " seconds.";
@@ -99,6 +105,12 @@ $emailCount = $row['count'];
 
             $mail = new PHPMailer(true);
             $loop_count = 0;
+
+
+            // タイムアウト時間を無効にする
+            set_time_limit(0);
+            file_put_contents("log.html", "<html><head><meta http-equiv='refresh' content='1'><style>body, html{height: 100%;margin: 0;display: flex;     justify-content: center;align-items: center;} .centered-text {font-size: 24px;font-weight: bold;text-align: center;}</style></head><body><div class='centered-text'>Progressing...</div></body></html>");
+
             while ($row = $result->fetchArray()) {
                 $loop_count++;
                 $to = $row['email'];
@@ -149,11 +161,9 @@ $emailCount = $row['count'];
                 $mail->addAddress($to);
 
                 // メール送信
-                if ($mail->send()) {
-                    // echo 'success';
-                } else {
-                    echo 'fail to send: ' . $mail->ErrorInfo;
-                }
+                $mail->send();
+                file_put_contents("log.html", "<html><head><meta http-equiv='refresh' content='1'><style>body, html{height: 100%;margin: 0;display: flex;     justify-content: center;align-items: center;} .centered-text {font-size: 24px;font-weight: bold;text-align: center;}</style></head><body><div class='centered-text'>Sent $loop_count emails.</div></body></html>");
+                //usleep(1000000);
 
 
 
@@ -161,7 +171,7 @@ $emailCount = $row['count'];
                 //     $errors[] = $to;
                 // }
             }
-
+            file_put_contents("log.html", "<html><head><meta http-equiv='refresh' content='1'><style>body, html{height: 100%;margin: 0;display: flex;     justify-content: center;align-items: center;} .centered-text {font-size: 24px;font-weight: bold;text-align: center;}</style></head><body><div class='centered-text'>DONE<br>Sent $loop_count emails.<br>Close the window</div></body></html>");
             if (empty($errors)) {
                 echo "<div class='alert alert-success mt-3'>Emails sent successfully.</div>";
             } else {
