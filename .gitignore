@@ -3,3 +3,4 @@ node_modules/
 emailist.db
 config.php
 SMTPMailer/
+log.html
