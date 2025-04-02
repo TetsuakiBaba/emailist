@@ -1,6 +1,6 @@
 {
     "name": "emailist",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "A project for super simple managing email lists",
     "main": "dashboard.php",
     "repository": {

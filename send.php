@@ -2,12 +2,33 @@
 include 'config.php';
 // include 'SMTPMailer/config.php';
 // セッションを開始
+session_set_cookie_params([
+    'lifetime' => 0,         // ブラウザを閉じるまで有効
+    'path' => '/',           // すべてのパスで有効
+    'domain' => '.adada.info', // サブドメイン間でセッション共有
+    'secure' => true,        // HTTPSのみ
+    'httponly' => true       // JavaScriptからアクセス不可
+]);
+// GETパラメータに session_id がある場合のみ適用
+if (isset($_GET['session_id']) && !empty($_GET['session_id'])) {
+    session_id($_GET['session_id']); // ここでセッションIDを設定
+}
 session_start();
 
-// ログインしていない場合はリダイレクト
-if (!isset($_SESSION['authenticated'])) {
-    header('Location: dashboard.php');
+if (
+    !isset($_SESSION['authenticated']) &&
+    (!isset($_SESSION['sender_authenticated']) || $_SESSION['sender_authenticated'] !== true)
+) {
+    // header('Location: dashboard.php');
+    print(('You are not autherized.'));
+    // print(var_dump($_SESSION['authenticated']));
+    // print(var_dump($_SESSION['sender_authenticated']));
+    // print(session_id());    
+    exit();
 }
+
+
+
 // config.phpを読み込む
 require('./SMTPMailer/config.php');
 
@@ -25,6 +46,12 @@ $result = $db->query('SELECT COUNT(*) as count FROM email_addresses');
 $row = $result->fetchArray();
 $emailCount = $row['count'];
 
+$sender_email_address = $SMTP_SENDER_ADDRESS;
+// 最初はmyadadaから来たユーザのメールアドレスで送信しようとしたが，送信元と実際の送信元がことなることでgoogleのセキュリティに弾かれたため，下記はコメントアウトして一律 smptの正しいアドレスから送信するように変更
+// if (isset($_SESSION['sender_email']) && !empty($_SESSION['sender_email'])) {
+//     $sender_email_address = $_SESSION['sender_email'];
+// }
+
 ?>
 
 <!DOCTYPE html>
@@ -34,14 +61,25 @@ $emailCount = $row['count'];
     <meta charset="UTF-8">
     <title>Email Distribution</title>
     <link href="./css/custom.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 
 <body>
     <div class="container mt-5">
-        <h1>Send Email to Subscribers</h1>
+        <h1 class="display-2">Send Email to Subscribers</h1>
 
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="bi bi-people"></i> Send to <?php echo htmlspecialchars($emailCount); ?> email addresses<?php if (isset($_GET['max_send']) && !empty($_GET['max_send'])) {
+                                                                                                                    echo " (limit: " . htmlspecialchars($_GET['max_send']) . ")";
+                                                                                                                } ?> by <?php echo htmlspecialchars($service_name); ?>.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
         <!-- Email Content Form -->
         <form id="email-form" method="post" action="">
+            <div class="mb-3">
+                <label for="sender_email" class="form-label">Sender Email Address</label>
+                <input type="email" class="form-control" id="sender_email" name="sender_email" value="<?php echo htmlspecialchars($sender_email_address); ?>" required disabled>
+            </div>
             <div class="mb-3">
                 <label for="subject" class="form-label">Subject</label>
                 <input type="text" class="form-control" id="subject" name="subject" required>
@@ -80,15 +118,11 @@ $emailCount = $row['count'];
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             echo "<script>document.body.innerHTML = '<div class=\'alert alert-info\' role=\'alert\'>Sending to $emailCount adresses... <a href=\'log.html\' target=\'_blank\' onclick=\'window.close();\'>Check progress</a></div>';window.close();window.open('log.html');</script>";
+
             // クライアントへの応答を終了する前にバッファをクリアして送信
             ob_end_flush();
             flush();
             fastcgi_finish_request();  // クライアントへの応答を終了
-
-            $current_timeout = ini_get("max_execution_time");
-            // echo "Current timeout setting is: " . $current_timeout . " seconds.";
-
-
 
             $current_timeout = ini_get("max_execution_time");
             // echo "Current timeout setting is: " . $current_timeout . " seconds.";
@@ -102,7 +136,7 @@ $emailCount = $row['count'];
 
             $result = $db->query('SELECT * FROM email_addresses');
             $errors = [];
-
+            $list_sent_emails = [];
             $mail = new PHPMailer(true);
             $loop_count = 0;
 
@@ -118,7 +152,7 @@ $emailCount = $row['count'];
                 $requestUri = $_SERVER['REQUEST_URI'];
                 $scriptPath = dirname($requestUri);
 
-                $unsubscribeLink = "<a href='http://$hostName$scriptPath/unsubscribe.php?email=" . urlencode($to) . "'>unsubscribe</a>";
+                $unsubscribeLink = "<a href='https://$hostName$scriptPath/unsubscribe.php?email=" . urlencode($to) . "'>unsubscribe</a>";
 
                 $message = nl2br($messageBase) . "<br><br>To " . $unsubscribeLink;
 
@@ -163,15 +197,27 @@ $emailCount = $row['count'];
                 // メール送信
                 $mail->send();
                 file_put_contents("log.html", "<html><head><meta http-equiv='refresh' content='1'><style>body, html{height: 100%;margin: 0;display: flex;     justify-content: center;align-items: center;} .centered-text {font-size: 24px;font-weight: bold;text-align: center;}</style></head><body><div class='centered-text'>Sent $loop_count emails.</div></body></html>");
-                //usleep(1000000);
+                // usleep(10000);
 
 
 
                 // if (!mb_send_mail($to, $subject, $message, $headers)) {
                 //     $errors[] = $to;
                 // }
+                $list_sent_emails[] = $to;
+                if (isset($_GET['max_send']) && is_numeric($_GET['max_send'])) {
+                    if ($loop_count >= intval($_GET['max_send'])) {
+                        break;
+                    }
+                }
             }
-            file_put_contents("log.html", "<html><head><meta http-equiv='refresh' content='1'><style>body, html{height: 100%;margin: 0;display: flex;     justify-content: center;align-items: center;} .centered-text {font-size: 24px;font-weight: bold;text-align: center;}</style></head><body><div class='centered-text'>DONE<br>Sent $loop_count emails.<br>Close the window</div></body></html>");
+
+            $emailListHTML = "";
+            if (isset($_GET['max_send']) && is_numeric($_GET['max_send'])) {
+                $emailListHTML = "<br>Email List: " . implode(', ', $list_sent_emails);
+            }
+            file_put_contents("log.html", "<html><head><meta http-equiv='refresh' content='1'><style>body, html{height: 100%;margin: 0;display: flex;justify-content: center;align-items: center;} .centered-text {font-size: 24px;font-weight: bold;text-align: center;}</style></head><body><div class='centered-text'>DONE<br>Sent $loop_count emails." . $emailListHTML . "<br>Close the window</div></body></html>");
+
             if (empty($errors)) {
                 echo "<div class='alert alert-success mt-3'>Emails sent successfully.</div>";
             } else {
